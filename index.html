@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lisa Running Group</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Arial, sans-serif;
+      }
+      body {
+        margin: 0;
+        background: #f4f6f8;
+        color: #1f2933;
+      }
+      .container {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+      }
+      h1,
+      h2 {
+        margin-bottom: 0.5rem;
+      }
+      .card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+      label {
+        display: block;
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+      }
+      input,
+      button {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccd6dd;
+        font-size: 0.95rem;
+      }
+      button {
+        border: none;
+        background: #1565c0;
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0f4f98;
+      }
+      button.secondary {
+        background: #455a64;
+      }
+      button.secondary:hover {
+        background: #37474f;
+      }
+      .option-list {
+        list-style: none;
+        margin: 8px 0 0;
+        padding: 0;
+        display: grid;
+        gap: 8px;
+      }
+      .option-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8fafb;
+        border: 1px solid #e2e8ee;
+        border-radius: 8px;
+        padding: 8px 10px;
+      }
+      .option-list li button {
+        width: auto;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+        background: #b71c1c;
+      }
+      .option-list li button:hover {
+        background: #8f1515;
+      }
+      .poll-column {
+        border: 1px solid #e1e7ed;
+        border-radius: 8px;
+        padding: 10px;
+      }
+      .poll-column ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 8px;
+      }
+      .message {
+        font-size: 0.92rem;
+        margin-top: 8px;
+      }
+      .message.error {
+        color: #b91c1c;
+      }
+      .message.success {
+        color: #106d2d;
+      }
+      .muted {
+        color: #64748b;
+        font-size: 0.9rem;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <h1>Lisa Running Group</h1>
+      <p class="muted">Organize group runs, manage options as admin, and let runners vote for preferred track and start time.</p>
+
+      <section class="card">
+        <h2>Profile</h2>
+        <div class="row">
+          <div>
+            <label for="runnerName">Your name</label>
+            <input id="runnerName" type="text" placeholder="e.g. Alex" />
+          </div>
+          <div>
+            <label for="adminCode">Admin code (optional)</label>
+            <input id="adminCode" type="password" placeholder="Enter code for admin access" />
+          </div>
+          <div>
+            <label>&nbsp;</label>
+            <button id="setRoleBtn" type="button">Apply profile</button>
+          </div>
+        </div>
+        <p id="roleMessage" class="message muted">Signed in as runner.</p>
+      </section>
+
+      <section id="adminPanel" class="card hidden">
+        <h2>Admin controls</h2>
+        <div class="row">
+          <div>
+            <label for="newTrack">Add running track</label>
+            <input id="newTrack" type="text" placeholder="Park Loop" />
+          </div>
+          <div>
+            <label for="newTime">Add time slot</label>
+            <input id="newTime" type="text" placeholder="Saturday 08:00" />
+          </div>
+        </div>
+        <div class="row" style="margin-top: 10px">
+          <button id="addTrackBtn" type="button">Add track</button>
+          <button id="addTimeBtn" type="button">Add time</button>
+          <button id="resetVotesBtn" type="button" class="secondary">Reset all votes</button>
+        </div>
+        <div class="row" style="margin-top: 12px">
+          <div>
+            <h3>Tracks</h3>
+            <ul id="trackManageList" class="option-list"></ul>
+          </div>
+          <div>
+            <h3>Time slots</h3>
+            <ul id="timeManageList" class="option-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Vote poll</h2>
+        <div class="row">
+          <div class="poll-column">
+            <h3>Preferred track</h3>
+            <ul id="trackPollList"></ul>
+          </div>
+          <div class="poll-column">
+            <h3>Preferred time</h3>
+            <ul id="timePollList"></ul>
+          </div>
+        </div>
+        <button id="submitVoteBtn" type="button" style="margin-top: 12px">Submit vote</button>
+        <p id="voteMessage" class="message muted"></p>
+      </section>
+
+      <section class="card">
+        <h2>Current results</h2>
+        <div class="row">
+          <div>
+            <h3>Track votes</h3>
+            <ul id="trackResultList" class="option-list"></ul>
+          </div>
+          <div>
+            <h3>Time votes</h3>
+            <ul id="timeResultList" class="option-list"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const ADMIN_CODE = "run-admin";
+      const STORAGE_KEY = "lisa_running_group_state_v1";
+
+      function getDefaultState() {
+        return {
+          tracks: ["River Loop", "Hill Circuit", "City Park"],
+          times: ["Tuesday 18:30", "Thursday 07:00", "Saturday 08:00"],
+          votesByUser: {}
+        };
+      }
+
+      let currentUser = "";
+      let isAdmin = false;
+
+      const els = {
+        runnerName: document.getElementById("runnerName"),
+        adminCode: document.getElementById("adminCode"),
+        setRoleBtn: document.getElementById("setRoleBtn"),
+        roleMessage: document.getElementById("roleMessage"),
+        adminPanel: document.getElementById("adminPanel"),
+        newTrack: document.getElementById("newTrack"),
+        newTime: document.getElementById("newTime"),
+        addTrackBtn: document.getElementById("addTrackBtn"),
+        addTimeBtn: document.getElementById("addTimeBtn"),
+        resetVotesBtn: document.getElementById("resetVotesBtn"),
+        trackManageList: document.getElementById("trackManageList"),
+        timeManageList: document.getElementById("timeManageList"),
+        trackPollList: document.getElementById("trackPollList"),
+        timePollList: document.getElementById("timePollList"),
+        submitVoteBtn: document.getElementById("submitVoteBtn"),
+        voteMessage: document.getElementById("voteMessage"),
+        trackResultList: document.getElementById("trackResultList"),
+        timeResultList: document.getElementById("timeResultList")
+      };
+
+      function loadState() {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (!stored) return getDefaultState();
+          const parsed = JSON.parse(stored);
+          return {
+            tracks: Array.isArray(parsed.tracks) && parsed.tracks.length ? parsed.tracks : getDefaultState().tracks,
+            times: Array.isArray(parsed.times) && parsed.times.length ? parsed.times : getDefaultState().times,
+            votesByUser: parsed.votesByUser && typeof parsed.votesByUser === "object" ? parsed.votesByUser : {}
+          };
+        } catch {
+          return getDefaultState();
+        }
+      }
+
+      let state = loadState();
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function sanitizeText(value) {
+        return value.trim().replace(/\s+/g, " ");
+      }
+
+      function renderRole() {
+        els.adminPanel.classList.toggle("hidden", !isAdmin);
+        if (!currentUser) {
+          els.roleMessage.className = "message muted";
+          els.roleMessage.textContent = "Signed in as runner.";
+          return;
+        }
+        els.roleMessage.className = "message success";
+        els.roleMessage.textContent = isAdmin
+          ? `Signed in as ${currentUser} (admin).`
+          : `Signed in as ${currentUser} (runner).`;
+      }
+
+      function createRadioList(container, name, options, selectedValue) {
+        container.innerHTML = "";
+        for (const option of options) {
+          const li = document.createElement("li");
+          const label = document.createElement("label");
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = name;
+          input.value = option;
+          input.checked = selectedValue === option;
+          label.appendChild(input);
+          label.append(` ${option}`);
+          li.appendChild(label);
+          container.appendChild(li);
+        }
+      }
+
+      function createManageList(container, options, onRemove) {
+        container.innerHTML = "";
+        for (const option of options) {
+          const li = document.createElement("li");
+          const span = document.createElement("span");
+          span.textContent = option;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = "Remove";
+          btn.addEventListener("click", () => onRemove(option));
+          li.append(span, btn);
+          container.appendChild(li);
+        }
+      }
+
+      function countVotes(field, options) {
+        const counts = Object.fromEntries(options.map((opt) => [opt, 0]));
+        for (const vote of Object.values(state.votesByUser)) {
+          const picked = vote?.[field];
+          if (picked && Object.hasOwn(counts, picked)) {
+            counts[picked] += 1;
+          }
+        }
+        return counts;
+      }
+
+      function renderResults(container, counts) {
+        container.innerHTML = "";
+        const entries = Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+        for (const [option, total] of entries) {
+          const li = document.createElement("li");
+          li.textContent = `${option}: ${total} vote${total === 1 ? "" : "s"}`;
+          container.appendChild(li);
+        }
+      }
+
+      function removeInvalidVotes() {
+        for (const [user, vote] of Object.entries(state.votesByUser)) {
+          if (!state.tracks.includes(vote.track) || !state.times.includes(vote.time)) {
+            delete state.votesByUser[user];
+          }
+        }
+      }
+
+      function renderAll() {
+        const userVote = currentUser ? state.votesByUser[currentUser] : null;
+        createRadioList(els.trackPollList, "track", state.tracks, userVote?.track);
+        createRadioList(els.timePollList, "time", state.times, userVote?.time);
+        createManageList(els.trackManageList, state.tracks, (track) => {
+          state.tracks = state.tracks.filter((item) => item !== track);
+          if (!state.tracks.length) state.tracks = getDefaultState().tracks;
+          removeInvalidVotes();
+          saveState();
+          renderAll();
+        });
+        createManageList(els.timeManageList, state.times, (time) => {
+          state.times = state.times.filter((item) => item !== time);
+          if (!state.times.length) state.times = getDefaultState().times;
+          removeInvalidVotes();
+          saveState();
+          renderAll();
+        });
+
+        renderResults(els.trackResultList, countVotes("track", state.tracks));
+        renderResults(els.timeResultList, countVotes("time", state.times));
+      }
+
+      els.setRoleBtn.addEventListener("click", () => {
+        currentUser = sanitizeText(els.runnerName.value);
+        const code = sanitizeText(els.adminCode.value);
+        isAdmin = code.length > 0 && code === ADMIN_CODE;
+        if (code.length > 0 && !isAdmin) {
+          els.roleMessage.className = "message error";
+          els.roleMessage.textContent = "Invalid admin code. Signed in as runner.";
+        } else {
+          renderRole();
+        }
+        renderAll();
+      });
+
+      els.addTrackBtn.addEventListener("click", () => {
+        if (!isAdmin) return;
+        const track = sanitizeText(els.newTrack.value);
+        if (!track || state.tracks.includes(track)) return;
+        state.tracks.push(track);
+        els.newTrack.value = "";
+        saveState();
+        renderAll();
+      });
+
+      els.addTimeBtn.addEventListener("click", () => {
+        if (!isAdmin) return;
+        const time = sanitizeText(els.newTime.value);
+        if (!time || state.times.includes(time)) return;
+        state.times.push(time);
+        els.newTime.value = "";
+        saveState();
+        renderAll();
+      });
+
+      els.resetVotesBtn.addEventListener("click", () => {
+        if (!isAdmin) return;
+        state.votesByUser = {};
+        saveState();
+        renderAll();
+        els.voteMessage.className = "message success";
+        els.voteMessage.textContent = "All votes were reset.";
+      });
+
+      els.submitVoteBtn.addEventListener("click", () => {
+        if (!currentUser) {
+          els.voteMessage.className = "message error";
+          els.voteMessage.textContent = "Enter your name first in Profile.";
+          return;
+        }
+        const track = document.querySelector('input[name="track"]:checked')?.value;
+        const time = document.querySelector('input[name="time"]:checked')?.value;
+        if (!track || !time) {
+          els.voteMessage.className = "message error";
+          els.voteMessage.textContent = "Please choose both a track and a time.";
+          return;
+        }
+        state.votesByUser[currentUser] = { track, time };
+        saveState();
+        renderAll();
+        els.voteMessage.className = "message success";
+        els.voteMessage.textContent = "Vote saved successfully.";
+      });
+
+      renderRole();
+      renderAll();
+    </script>
+  </body>
+</html>
