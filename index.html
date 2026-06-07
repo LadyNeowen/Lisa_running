@@ -282,7 +282,7 @@
       function getOrCreateAdminSalt() {
         let salt = localStorage.getItem(ADMIN_SALT_KEY);
         if (salt) return salt;
-        const random = new Uint8Array(16);
+        const random = new Uint8Array(32);
         crypto.getRandomValues(random);
         salt = Array.from(random).map((b) => b.toString(16).padStart(2, "0")).join("");
         localStorage.setItem(ADMIN_SALT_KEY, salt);
@@ -301,7 +301,7 @@
         const salt = getOrCreateAdminSalt();
         const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(code), "PBKDF2", false, ["deriveBits"]);
         const bits = await crypto.subtle.deriveBits(
-          { name: "PBKDF2", salt: hexToBytes(salt), iterations: 120000, hash: "SHA-256" },
+          { name: "PBKDF2", salt: hexToBytes(salt), iterations: 600000, hash: "SHA-256" },
           key,
           256
         );
