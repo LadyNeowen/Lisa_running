@@ -206,8 +206,8 @@
     </main>
 
     <script>
-      const ADMIN_CODE_HASH = "e176a59031bb7627e16e1a27cc1a8ac360d9498e9b066971b96283f7fd15ceb2";
       const STORAGE_KEY = "lisa_running_group_state_v1";
+      const ADMIN_HASH_KEY = "lisa_running_admin_hash_v1";
 
       function getDefaultState() {
         return {
@@ -341,7 +341,9 @@
 
       function removeInvalidVotes() {
         for (const [user, vote] of Object.entries(state.votesByUser)) {
-          if (!state.tracks.includes(vote.track) || !state.times.includes(vote.time)) {
+          const track = vote?.track;
+          const time = vote?.time;
+          if (!track || !time || !state.tracks.includes(track) || !state.times.includes(time)) {
             delete state.votesByUser[user];
           }
         }
@@ -373,7 +375,19 @@
       els.setRoleBtn.addEventListener("click", async () => {
         currentUser = sanitizeText(els.runnerName.value);
         const code = sanitizeText(els.adminCode.value);
-        isAdmin = code.length > 0 && (await sha256(code)) === ADMIN_CODE_HASH;
+        if (!code) {
+          isAdmin = false;
+          renderRole();
+          renderAll();
+          return;
+        }
+        const codeHash = await sha256(code);
+        let adminHash = localStorage.getItem(ADMIN_HASH_KEY);
+        if (!adminHash) {
+          localStorage.setItem(ADMIN_HASH_KEY, codeHash);
+          adminHash = codeHash;
+        }
+        isAdmin = codeHash === adminHash;
         if (code.length > 0 && !isAdmin) {
           els.roleMessage.className = "message error";
           els.roleMessage.textContent = "Invalid admin code. Signed in as runner.";
