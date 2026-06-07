@@ -206,7 +206,7 @@
     </main>
 
     <script>
-      const ADMIN_CODE = "run-admin";
+      const ADMIN_CODE_HASH = "e176a59031bb7627e16e1a27cc1a8ac360d9498e9b066971b96283f7fd15ceb2";
       const STORAGE_KEY = "lisa_running_group_state_v1";
 
       function getDefaultState() {
@@ -264,6 +264,13 @@
 
       function sanitizeText(value) {
         return value.trim().replace(/\s+/g, " ");
+      }
+
+      async function sha256(input) {
+        const encoded = new TextEncoder().encode(input);
+        const hashBuffer = await crypto.subtle.digest("SHA-256", encoded);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
       }
 
       function renderRole() {
@@ -363,10 +370,10 @@
         renderResults(els.timeResultList, countVotes("time", state.times));
       }
 
-      els.setRoleBtn.addEventListener("click", () => {
+      els.setRoleBtn.addEventListener("click", async () => {
         currentUser = sanitizeText(els.runnerName.value);
         const code = sanitizeText(els.adminCode.value);
-        isAdmin = code.length > 0 && code === ADMIN_CODE;
+        isAdmin = code.length > 0 && (await sha256(code)) === ADMIN_CODE_HASH;
         if (code.length > 0 && !isAdmin) {
           els.roleMessage.className = "message error";
           els.roleMessage.textContent = "Invalid admin code. Signed in as runner.";

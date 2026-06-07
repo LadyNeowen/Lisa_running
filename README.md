@@ -6,6 +6,4 @@ Simple web page to organize a jogging/running group with:
 - Persistent poll data in browser localStorage
 
 ## Usage
-Open `/tmp/workspace/LadyNeowen/Lisa_running/index.html` in a browser.
-
-Admin code for this demo page: `run-admin`
+Open `index.html` in a browser.
